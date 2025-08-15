@@ -4,5 +4,9 @@
     "playcanvas": "^2.10.6",
     "typescript": "^5.9.2",
     "vite": "^7.1.2"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.12",
+    "tailwindcss": "^4.1.12"
   }
 }

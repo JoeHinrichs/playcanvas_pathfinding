@@ -1,4 +1,5 @@
 import * as pc from 'playcanvas';
+import './index.css';
 
 // create an application
 const canvas = document.getElementById('application') as HTMLCanvasElement;
