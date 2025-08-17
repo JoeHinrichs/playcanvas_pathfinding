@@ -7,6 +7,11 @@
 # production
 /dist
 
+#playcanvas
+/src/files
+config.json
+2300273.json
+
 # misc
 .DS_Store
 .env.local
