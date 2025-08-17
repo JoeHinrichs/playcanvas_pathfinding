@@ -2,6 +2,8 @@ import * as pc from 'playcanvas';
 import { loadScene } from './modules/utilities';
 import './index.css';
 
+let camera: pc.Entity | null;
+
 // create an application
 const canvas = document.getElementById('application') as HTMLCanvasElement;
 const app = new pc.Application(canvas);
@@ -15,5 +17,12 @@ function preloadProgress(value: number) {
 }
 
 function startApplication() {
-    console.log('Application has started successfully');
+    camera = app.root.findByName("Camera") as pc.Entity;
+    if(camera){
+        camera.addComponent('script');
+        //camera.script.create(createOrbitCamera());
+        //camera.script.create(createOrbitCameraMouseInput());
+        //camera.script.create(createOrbitCameraTouchInput());
+    }
 }
+
