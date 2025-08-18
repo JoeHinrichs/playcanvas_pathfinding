@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { loadScene } from './modules/utilities';
+import { CameraControls } from './modules/camera-controls.mjs';
 import './index.css';
 
 let camera: pc.Entity | null;
@@ -18,11 +19,16 @@ function preloadProgress(value: number) {
 
 function startApplication() {
     camera = app.root.findByName("Camera") as pc.Entity;
-    if(camera){
-        camera.addComponent('script');
-        //camera.script.create(createOrbitCamera());
-        //camera.script.create(createOrbitCameraMouseInput());
-        //camera.script.create(createOrbitCameraTouchInput());
+    if (camera?.script) {
+        const cc = (camera.script.create(CameraControls) as any);
+        if (cc) {
+            cc.enableFly = false;
+            cc.enablePan = false; 
+            cc.rotateSpeed = 0.5;
+            cc.zoomSpeed = 0.005;
+         }
     }
+
 }
+
 
