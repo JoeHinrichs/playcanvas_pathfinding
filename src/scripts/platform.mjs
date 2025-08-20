@@ -37,10 +37,10 @@ export class Platform extends pc.Script {
                 const maxAgentRadius = 0.6;
                 crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
                 const heroAgent = crowd.addAgent({ x: 8, y: 1, z: 0 }, {
-                    radius: 0.5,
-                    height: 0.5,
+                    radius: 1,
+                    height: 2,
                     maxAcceleration: 4.0,
-                    maxSpeed: 1.0,
+                    maxSpeed: 2.0,
                     collisionQueryRange: 0.5,
                     pathOptimizationRange: 0.0,
                     separationWeight: 1.0,
