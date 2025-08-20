@@ -10,7 +10,6 @@ export class Platform extends pc.Script {
     initialize() {
 
         const wall = this.app.root.findByName("wall");
-        const hero = this.app.root.findByName("hero");
 
         if (this.entity.render?.meshInstances && wall?.render?.meshInstances) {
             let meshInstances = this.entity.render.meshInstances.concat(wall.render.meshInstances);
@@ -37,7 +36,7 @@ export class Platform extends pc.Script {
                 const maxAgents = 10;
                 const maxAgentRadius = 0.6;
                 crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
-                const heroAgent = crowd.addAgent(hero.getLocalPosition(), {
+                const heroAgent = crowd.addAgent({ x: 8, y: 1, z: 0 }, {
                     radius: 0.5,
                     height: 0.5,
                     maxAcceleration: 4.0,
@@ -48,15 +47,21 @@ export class Platform extends pc.Script {
                 });
 
                 query = new NavMeshQuery(navMesh);
+                const targetPosition = { x: -8, y: 1, z: 0 };
+                heroAgent.requestMoveTarget(targetPosition);
             }
         }
     }
 
     update(dt) {
         if (crowd) {
-            //console.log("Crowd update");
-            // Update crowd logic here if needed
-            // For example, you could move agents or handle pathfinding updates
+            crowd.update(1/60, dt, 10);
+            const hero = this.app.root.findByName("hero");
+            const heroAgent = crowd.agents[0];
+            if (hero && heroAgent) {
+                const agentPos = heroAgent.interpolatedPosition;
+                hero.setLocalPosition(agentPos.x, agentPos.y + 1, agentPos.z);
+            }
         }
         //this.entity.rotateLocal(0, 1, 0);
     }
