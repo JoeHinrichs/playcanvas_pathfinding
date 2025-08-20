@@ -1,9 +1,8 @@
 import * as pc from 'playcanvas';
 import { init as recastInit } from '@recast-navigation/core';
-import { pcToSoloNavMesh, NavMeshHelper } from '@recast-navigation/playcanvas';
 import { loadScene } from './modules/utilities';
+import { Platform } from './scripts/platform.mjs';
 import { CameraControls } from './modules/camera-controls.mjs';
-
 import './index.css';
 
 let camera: pc.Entity | null;
@@ -34,41 +33,12 @@ async function startApplication() {
         }
     }
 
-    await recastInit(); // ensure Recast is initialized before generating the navmesh
-
-    /*add a wall */
-    const wall = new pc.Entity();
-    wall.addComponent('model', {type: 'box'});
-    wall.setPosition(-5.5, 0.5, -0);
-    wall.setLocalScale(1, 1, 2);
-    app.root.addChild(wall);
+    await recastInit(); // ensure Recast is initialized before generating the navmesh   
 
     /* generate a solo navmesh */
     const platform = app.root.findByName("platform") as pc.Entity;
-    if (platform?.render?.meshInstances && wall?.model?.meshInstances) {
-        let meshInstances = platform.render.meshInstances.concat(wall.model.meshInstances);
-        const { success, navMesh } = pcToSoloNavMesh(meshInstances, {
-            //cellSize: 0.3,
-            //cellHeight: 0.2,
-            //agentHeight: 2.0,
-            //agentRadius: 0.6,
-            //agentMaxClimb: 0.9,
-            //agentMaxSlope: 45.0,
-            //regionMinSize: 8,
-            //regionMergeSize: 20,
-            //edgeMaxLen: 12.0,
-            //edgeMaxError: 1.3,
-            //vertsPerPoly: 6,
-            //detailSampleDist: 6.0,
-            //detailSampleMaxError: 1.0
-        });
-
-        if (success && navMesh) {
-            const navMeshHelper = new NavMeshHelper(navMesh, app.graphicsDevice);
-            platform.addChild(navMeshHelper);
-
-        }
-    }
+    platform.addComponent('script');
+    if(platform?.script) platform.script.create(Platform);
 }
 
 
