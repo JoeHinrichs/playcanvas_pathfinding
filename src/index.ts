@@ -33,12 +33,23 @@ async function startApplication() {
             //cc.focus(new pc.Vec3(0, 0, 0), true);
         }
     }
+
     await recastInit(); // ensure Recast is initialized before generating the navmesh
+
+    /*add a wall */
+    const wall = new pc.Entity();
+    wall.addComponent('model', {type: 'box'});
+    wall.setPosition(-5.5, 0.5, -0);
+    wall.setLocalScale(1, 1, 2);
+    app.root.addChild(wall);
+
+    if(wall?.model?.meshInstances) console.log(wall.model.meshInstances[0]);
+
 
     /* generate a solo navmesh */
     const platform = app.root.findByName("platform") as pc.Entity;
-    if (platform?.render?.meshInstances) {
-        const meshInstances = platform.render.meshInstances;
+    if (platform?.render?.meshInstances && wall?.model?.meshInstances) {
+        let meshInstances = platform.render.meshInstances.concat(wall.model.meshInstances);
         const { success, navMesh } = pcToSoloNavMesh(meshInstances, {
             //cellSize: 0.3,
             //cellHeight: 0.2,
@@ -54,8 +65,6 @@ async function startApplication() {
             //detailSampleDist: 6.0,
             //detailSampleMaxError: 1.0
         });
-        console.log("Navmesh generation success:", success);
-        console.log("Navmesh:", navMesh);
 
         if (success && navMesh) {
             const navMeshHelper = new NavMeshHelper(navMesh, app.graphicsDevice);
