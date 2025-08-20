@@ -43,9 +43,6 @@ async function startApplication() {
     wall.setLocalScale(1, 1, 2);
     app.root.addChild(wall);
 
-    if(wall?.model?.meshInstances) console.log(wall.model.meshInstances[0]);
-
-
     /* generate a solo navmesh */
     const platform = app.root.findByName("platform") as pc.Entity;
     if (platform?.render?.meshInstances && wall?.model?.meshInstances) {
@@ -72,7 +69,6 @@ async function startApplication() {
 
         }
     }
-    //const { success, navMesh } = pcToSoloNavMesh(meshInstances, {});
 }
 
 
