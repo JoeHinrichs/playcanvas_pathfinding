@@ -1,6 +1,6 @@
 import * as pc from 'playcanvas';
-import { init } from '@recast-navigation/core';
-import { pcToSoloNavMesh } from '@recast-navigation/playcanvas';
+import { init as recastInit } from '@recast-navigation/core';
+import { pcToSoloNavMesh, NavMeshHelper } from '@recast-navigation/playcanvas';
 import { loadScene } from './modules/utilities';
 import { CameraControls } from './modules/camera-controls.mjs';
 
@@ -33,13 +33,12 @@ async function startApplication() {
             //cc.focus(new pc.Vec3(0, 0, 0), true);
         }
     }
-    await init(); // ensure Recast is initialized before generating the navmesh
-    
+    await recastInit(); // ensure Recast is initialized before generating the navmesh
+
     /* generate a solo navmesh */
     const platform = app.root.findByName("platform") as pc.Entity;
     if (platform?.render?.meshInstances) {
         const meshInstances = platform.render.meshInstances;
-        console.log("Mesh instances:", meshInstances);
         const { success, navMesh } = pcToSoloNavMesh(meshInstances, {
             //cellSize: 0.3,
             //cellHeight: 0.2,
@@ -57,6 +56,12 @@ async function startApplication() {
         });
         console.log("Navmesh generation success:", success);
         console.log("Navmesh:", navMesh);
+
+        if (success && navMesh) {
+            const navMeshHelper = new NavMeshHelper(navMesh, app.graphicsDevice);
+            platform.addChild(navMeshHelper);
+
+        }
     }
     //const { success, navMesh } = pcToSoloNavMesh(meshInstances, {});
 }
