@@ -34,7 +34,7 @@ export class Platform extends pc.Script {
             });
 
             if (success && navMesh) {
-                const navMeshHelper = new NavMeshHelper(navMesh, pc.app.graphicsDevice);
+                const navMeshHelper = new NavMeshHelper(navMesh, this.app.graphicsDevice);
                 this.entity.addChild(navMeshHelper);
 
                 const maxAgents = 10;
@@ -55,15 +55,15 @@ export class Platform extends pc.Script {
                 //heroAgent.requestMoveTarget(targetPosition);
             }
 
-            pc.app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
+            this.app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
 
-            if (pc.app.touch) pc.app.touch.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
+            if (this.app.touch) this.app.touch.on(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
 
             this.on('destroy', () => {
-                pc.app.mouse.off(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
+                this.app.mouse.off(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
 
-                if (pc.app.touch) {
-                    pc.app.touch.off(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
+                if (this.app.touch) {
+                    this.app.touch.off(pc.EVENT_TOUCHSTART, this.onTouchStart, this);
                 }
             });
         }
@@ -83,34 +83,24 @@ export class Platform extends pc.Script {
     };
 
     doRayCast(screenPosition) {
-        // Calculate the screen position in camera viewport space 
         var rect = cameraEntity.camera.rect;
         var screenWidth = this.app.graphicsDevice.width / this.app.graphicsDevice.maxPixelRatio;
         var screenHeight = this.app.graphicsDevice.height / this.app.graphicsDevice.maxPixelRatio;
  
-        // Work out the normalised screen positions we are clicking 
+        // Convert screen position to normalized coordinates
         var nx = ((screenPosition.x / screenWidth) - rect.x) / rect.z;
+        var ny = ((screenPosition.y / screenHeight) - (1 - rect.y - rect.w)) / rect.w; // Y coordinate is inverted in PlayCanvas
 
-        // Y is inverted in screen coords so we want to use the reminder of the rect
-        var ny = ((screenPosition.y / screenHeight) - (1 - rect.y - rect.w)) / rect.w;
-
-        // Are we clicking in our viewport?
+        // Check if the click is within the camera viewport
         if (nx >= 0 && nx < 1 && ny >= 0 && ny < 1) {
-            // Convert back to screen coordinates for screen to world
             var mx = nx * screenWidth;
             var my = ny * screenHeight;
 
-            // The pc.Vec3 to raycast from
             var from = cameraEntity.camera.screenToWorld(mx, my, cameraEntity.camera.nearClip);
-
-            // The pc.Vec3 to raycast to 
-            var to = cameraEntity.camera.screenToWorld(mx, my, cameraEntity.camera.farClip);
-
-            // Raycast between the two points
+            var to = cameraEntity.camera.screenToWorld(mx, my, cameraEntity.camera.farClip); 
             var result = this.app.systems.rigidbody.raycastFirst(from, to);
 
             if (result) {
-                console.log("Hit", result.entity.name, "at", result.point);
                 //this.markerEntity.setPosition(result.point);
                crowd.agents[0].requestMoveTarget(result.point);
             }
