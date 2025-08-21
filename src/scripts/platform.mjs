@@ -105,9 +105,8 @@ export class Platform extends pc.Script {
             const heroAgent = crowd.agents[0];
             if (hero && heroAgent) {
                 const agentPos = heroAgent.interpolatedPosition;
-                hero.setLocalPosition(agentPos.x, agentPos.y + 1, agentPos.z);
+                hero.setLocalPosition(agentPos.x, agentPos.y + 0.8, agentPos.z); // 0.8 to make agent stand on the ground
             }
         }
-        //this.entity.rotateLocal(0, 1, 0);
     }
 }

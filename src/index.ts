@@ -51,8 +51,6 @@ async function startApplication() {
             cc.enablePan = false;
             cc.rotateSpeed = 0.5;
             cc.zoomSpeed = 0.005;
-            //cc._startZoomDist = 30;
-            //cc.focus(new pc.Vec3(0, 0, 0), true);
         }
     }
 
