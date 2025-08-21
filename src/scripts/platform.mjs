@@ -51,8 +51,8 @@ export class Platform extends pc.Script {
                 });
 
                 query = new NavMeshQuery(navMesh);
-                const targetPosition = { x: -8, y: 1, z: 0 };
-                heroAgent.requestMoveTarget(targetPosition);
+                //const targetPosition = { x: -8, y: 1, z: 0 };
+                //heroAgent.requestMoveTarget(targetPosition);
             }
 
             pc.app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
@@ -83,19 +83,38 @@ export class Platform extends pc.Script {
     };
 
     doRayCast(screenPosition) {
-        const ray = Platform.ray;
-        const hitPosition = Platform.hitPosition;
-        const camera = cameraEntity.camera;
+        // Calculate the screen position in camera viewport space 
+        var rect = cameraEntity.camera.rect;
+        var screenWidth = this.app.graphicsDevice.width / this.app.graphicsDevice.maxPixelRatio;
+        var screenHeight = this.app.graphicsDevice.height / this.app.graphicsDevice.maxPixelRatio;
+ 
+        // Work out the normalised screen positions we are clicking 
+        var nx = ((screenPosition.x / screenWidth) - rect.x) / rect.z;
 
-        camera.screenToWorld(screenPosition.x, screenPosition.y, camera.nearClip, ray.origin);
-        camera.screenToWorld(screenPosition.x, screenPosition.y, camera.farClip, ray.direction);
-        ray.direction.sub(ray.origin).normalize();
+        // Y is inverted in screen coords so we want to use the reminder of the rect
+        var ny = ((screenPosition.y / screenHeight) - (1 - rect.y - rect.w)) / rect.w;
 
-        /*const hit = this.groundShape.intersectsRay(ray, hitPosition);
-        if (hit) {
-            console.log("Hit position:", hitPosition);
-            //this.movePlayerTo(hitPosition);
-        }*/
+        // Are we clicking in our viewport?
+        if (nx >= 0 && nx < 1 && ny >= 0 && ny < 1) {
+            // Convert back to screen coordinates for screen to world
+            var mx = nx * screenWidth;
+            var my = ny * screenHeight;
+
+            // The pc.Vec3 to raycast from
+            var from = cameraEntity.camera.screenToWorld(mx, my, cameraEntity.camera.nearClip);
+
+            // The pc.Vec3 to raycast to 
+            var to = cameraEntity.camera.screenToWorld(mx, my, cameraEntity.camera.farClip);
+
+            // Raycast between the two points
+            var result = this.app.systems.rigidbody.raycastFirst(from, to);
+
+            if (result) {
+                console.log("Hit", result.entity.name, "at", result.point);
+                //this.markerEntity.setPosition(result.point);
+               crowd.agents[0].requestMoveTarget(result.point);
+            }
+        }
     }
 
     update(dt) {
