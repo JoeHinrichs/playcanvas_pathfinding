@@ -18,6 +18,13 @@ const app = new pc.Application(canvas, {
 app.setCanvasResolution(pc.RESOLUTION_AUTO);
 app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
 
+//watch for window resizing
+const resize = () => app.resizeCanvas();
+window.addEventListener('resize', resize);
+app.on('destroy', () => {
+    window.removeEventListener('resize', resize);
+});
+
 //install ammo physics
 loadAmmo().then(() => {
     console.log("Ammo physics loaded successfully");
@@ -61,8 +68,18 @@ async function startApplication() {
     platform.addComponent('script');
     if (platform?.script) platform.script.create(Platform);
 
-
-
+    const showMesh = document.getElementById("showMesh") as HTMLButtonElement;
+    showMesh.addEventListener('click', function (e) {
+        let platformScript = platform.script as any;
+        if (showMesh.innerHTML.includes('Show')) {
+            showMesh.innerHTML = 'Hide NavMesh'
+            platformScript.platform.navMeshHelper.enabled = true;
+        } else {
+            showMesh.innerHTML = 'Show NavMesh'
+            platformScript.platform.navMeshHelper.enabled = false;
+        }
+    });
+    showMesh.classList.remove('invisible');
 
 }
 

@@ -34,8 +34,9 @@ export class Platform extends pc.Script {
             });
 
             if (success && navMesh) {
-                const navMeshHelper = new NavMeshHelper(navMesh, this.app.graphicsDevice);
-                this.entity.addChild(navMeshHelper);
+                this.navMeshHelper = new NavMeshHelper(navMesh, this.app.graphicsDevice);
+                this.navMeshHelper.enabled = false;
+                this.entity.addChild(this.navMeshHelper);
 
                 const maxAgents = 10;
                 const maxAgentRadius = 0.6;
