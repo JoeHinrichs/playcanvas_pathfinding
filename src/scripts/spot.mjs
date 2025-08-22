@@ -15,6 +15,7 @@ export class Spot extends pc.Script {
     
     update(dt) {
         this.timer += dt;
+        console.log(this.timer);
         let scaleFactor = 0.25 + (Math.abs(Math.sin(this.timer)));
         this.entity.setLocalScale(scaleFactor, 0.01, scaleFactor);
     }
