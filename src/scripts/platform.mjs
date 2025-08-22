@@ -113,7 +113,6 @@ export class Platform extends pc.Script {
             const hero = this.app.root.findByName("hero");
             const heroAgent = crowd.agents[0];
             if (hero && heroAgent) {
-                const rotation = new pc.Quat();
                 const hp = hero.getLocalPosition();
                 const av = heroAgent.velocity();
                 const ap = heroAgent.interpolatedPosition;
@@ -125,10 +124,14 @@ export class Platform extends pc.Script {
 
                 if(currSpeed < 0.35) return; //stop rotation when agent is not moving
 
+                const currRot = hero.getLocalRotation();
+                const nextRot = new pc.Quat();
+                const slerpRot = new pc.Quat();
                 const direction = nextPoint.clone().sub(currPoint).normalize();
-                rotation.setFromDirections(pc.Vec3.FORWARD, direction);
+                nextRot.setFromDirections(pc.Vec3.FORWARD, direction);
+                slerpRot.slerp(currRot, nextRot, 0.1); //smooth rotation
                 hero.setLocalPosition(nextPoint.x, nextPoint.y, nextPoint.z); 
-                hero.setLocalRotation(rotation);
+                hero.setLocalRotation(slerpRot); 
             }
         }
     }
