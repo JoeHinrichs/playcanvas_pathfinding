@@ -113,8 +113,22 @@ export class Platform extends pc.Script {
             const hero = this.app.root.findByName("hero");
             const heroAgent = crowd.agents[0];
             if (hero && heroAgent) {
-                const agentPos = heroAgent.interpolatedPosition;
-                hero.setLocalPosition(agentPos.x, agentPos.y + 0.8, agentPos.z); // 0.8 to make agent stand on the ground
+                const rotation = new pc.Quat();
+                const hp = hero.getLocalPosition();
+                const av = heroAgent.velocity();
+                const ap = heroAgent.interpolatedPosition;
+                const floorY = ap.y + 0.8; // 0.8 to make agent stand on the ground
+                const currPoint = new pc.Vec3(hp.x, floorY, hp.z); 
+                const nextPoint = new pc.Vec3(ap.x, floorY, ap.z);
+                const currVelocity = new pc.Vec3(av.x, av.y, av.z); 
+                const currSpeed = currVelocity.length(); //magnitude of velocity vec3
+
+                if(currSpeed < 0.35) return; //stop rotation when agent is not moving
+
+                const direction = nextPoint.clone().sub(currPoint).normalize();
+                rotation.setFromDirections(pc.Vec3.FORWARD, direction);
+                hero.setLocalPosition(nextPoint.x, nextPoint.y, nextPoint.z); 
+                hero.setLocalRotation(rotation);
             }
         }
     }
