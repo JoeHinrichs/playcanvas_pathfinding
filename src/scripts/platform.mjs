@@ -1,4 +1,5 @@
 import * as pc from 'playcanvas';
+import { Spot } from './spot.mjs';
 import { Crowd } from '@recast-navigation/core';
 import { pcToSoloNavMesh, NavMeshHelper } from '@recast-navigation/playcanvas';
 
@@ -12,8 +13,11 @@ export class Platform extends pc.Script {
 
         const wall = this.app.root.findByName("wall");
 
-        this.spot = this.app.root.findByName("spot");
         this.cameraEntity = this.app.root.findByName("Camera");
+
+        this.spot = this.app.root.findByName("spot");
+        this.spot.addComponent('script');
+        this.spot.script.create(Spot);
 
         if (this.entity.render?.meshInstances && wall?.render?.meshInstances) {
             let meshInstances = this.entity.render.meshInstances.concat(wall.render.meshInstances);
@@ -103,6 +107,7 @@ export class Platform extends pc.Script {
                 this.crowd.agents[0].requestMoveTarget(result.point);
                 this.spot.setPosition(result.point);
                 this.spot.setLocalRotation(spotRot);
+                this.spot.script.spot.reset();
             }
         }
     }
