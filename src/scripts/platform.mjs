@@ -1,8 +1,6 @@
 import * as pc from 'playcanvas';
-import { Crowd, NavMeshQuery } from '@recast-navigation/core';
+import { Crowd } from '@recast-navigation/core';
 import { pcToSoloNavMesh, NavMeshHelper } from '@recast-navigation/playcanvas';
-
-let crowd, query, cameraEntity = null;
 
 export class Platform extends pc.Script {
     static scriptName = 'platform';
@@ -13,7 +11,9 @@ export class Platform extends pc.Script {
     initialize() {
 
         const wall = this.app.root.findByName("wall");
-        cameraEntity = this.app.root.findByName("Camera");
+
+        this.spot = this.app.root.findByName("spot");
+        this.cameraEntity = this.app.root.findByName("Camera");
 
         if (this.entity.render?.meshInstances && wall?.render?.meshInstances) {
             let meshInstances = this.entity.render.meshInstances.concat(wall.render.meshInstances);
@@ -39,8 +39,8 @@ export class Platform extends pc.Script {
 
                 const maxAgents = 10;
                 const maxAgentRadius = 0.6;
-                crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
-                const heroAgent = crowd.addAgent({ x: 8, y: 1, z: 0 }, {
+                this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
+                const heroAgent = this.crowd.addAgent({ x: 8, y: 1, z: 0 }, {
                     radius: 1,
                     height: 2,
                     maxAcceleration: 4.0,
@@ -49,10 +49,6 @@ export class Platform extends pc.Script {
                     pathOptimizationRange: 0.0,
                     separationWeight: 1.0,
                 });
-
-                query = new NavMeshQuery(navMesh);
-                //const targetPosition = { x: -8, y: 1, z: 0 };
-                //heroAgent.requestMoveTarget(targetPosition);
             }
 
             this.app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
@@ -83,10 +79,10 @@ export class Platform extends pc.Script {
     };
 
     doRayCast(screenPosition) {
-        var rect = cameraEntity.camera.rect;
+        var rect = this.cameraEntity.camera.rect;
         var screenWidth = this.app.graphicsDevice.width / this.app.graphicsDevice.maxPixelRatio;
         var screenHeight = this.app.graphicsDevice.height / this.app.graphicsDevice.maxPixelRatio;
- 
+
         // Convert screen position to normalized coordinates
         var nx = ((screenPosition.x / screenWidth) - rect.x) / rect.z;
         var ny = ((screenPosition.y / screenHeight) - (1 - rect.y - rect.w)) / rect.w; // Y coordinate is inverted in PlayCanvas
@@ -96,33 +92,36 @@ export class Platform extends pc.Script {
             var mx = nx * screenWidth;
             var my = ny * screenHeight;
 
-            var from = cameraEntity.camera.screenToWorld(mx, my, cameraEntity.camera.nearClip);
-            var to = cameraEntity.camera.screenToWorld(mx, my, cameraEntity.camera.farClip); 
+            var from = this.cameraEntity.camera.screenToWorld(mx, my, this.cameraEntity.camera.nearClip);
+            var to = this.cameraEntity.camera.screenToWorld(mx, my, this.cameraEntity.camera.farClip);
             var result = this.app.systems.rigidbody.raycastFirst(from, to);
 
             if (result) {
-                //this.markerEntity.setPosition(result.point);
-               crowd.agents[0].requestMoveTarget(result.point);
+                const spotRot = new pc.Quat();
+                spotRot.setFromDirections(pc.Vec3.UP, result.normal);
+                this.crowd.agents[0].requestMoveTarget(result.point);
+                this.spot.setPosition(result.point);
+                this.spot.setLocalRotation(spotRot);
             }
         }
     }
 
     update(dt) {
-        if (crowd) {
-            crowd.update(1 / 60, dt, 10);
+        if (this.crowd) {
+            this.crowd.update(1 / 60, dt, 10);
             const hero = this.app.root.findByName("hero");
-            const heroAgent = crowd.agents[0];
+            const heroAgent = this.crowd.agents[0];
             if (hero && heroAgent) {
                 const hp = hero.getLocalPosition();
                 const av = heroAgent.velocity();
                 const ap = heroAgent.interpolatedPosition;
                 const floorY = ap.y + 0.8; // 0.8 to make agent stand on the ground
-                const currPoint = new pc.Vec3(hp.x, floorY, hp.z); 
+                const currPoint = new pc.Vec3(hp.x, floorY, hp.z);
                 const nextPoint = new pc.Vec3(ap.x, floorY, ap.z);
-                const currVelocity = new pc.Vec3(av.x, av.y, av.z); 
+                const currVelocity = new pc.Vec3(av.x, av.y, av.z);
                 const currSpeed = currVelocity.length(); //magnitude of velocity vec3
 
-                if(currSpeed < 0.35) return; //stop rotation when agent is not moving
+                if (currSpeed < 0.35) return; //stop rotation when agent is not moving
 
                 const currRot = hero.getLocalRotation();
                 const nextRot = new pc.Quat();
@@ -130,8 +129,8 @@ export class Platform extends pc.Script {
                 const direction = nextPoint.clone().sub(currPoint).normalize();
                 nextRot.setFromDirections(pc.Vec3.FORWARD, direction);
                 slerpRot.slerp(currRot, nextRot, 0.1); //smooth rotation
-                hero.setLocalPosition(nextPoint.x, nextPoint.y, nextPoint.z); 
-                hero.setLocalRotation(slerpRot); 
+                hero.setLocalPosition(nextPoint.x, nextPoint.y, nextPoint.z);
+                hero.setLocalRotation(slerpRot);
             }
         }
     }
