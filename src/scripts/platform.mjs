@@ -21,20 +21,9 @@ export class Platform extends pc.Script {
 
         if (this.entity.render?.meshInstances && wall?.render?.meshInstances) {
             let meshInstances = this.entity.render.meshInstances.concat(wall.render.meshInstances);
-            const { success, navMesh } = pcToSoloNavMesh(meshInstances, {
-                //cellSize: 0.3,
-                //cellHeight: 0.2,
-                //agentHeight: 2.0,
-                //agentRadius: 0.6,
-                //agentMaxClimb: 0.9,
-                //agentMaxSlope: 45.0,
-                //regionMinSize: 8,
-                //regionMergeSize: 20,
-                //edgeMaxLen: 12.0,
-                //edgeMaxError: 1.3,
-                //vertsPerPoly: 6,
-                //detailSampleDist: 6.0,
-                //detailSampleMaxError: 1.0
+            console.log(pcToSoloNavMesh.navMeshGeneratorConfig);
+            const { success, navMesh } = pcToSoloNavMesh(meshInstances, {               
+                cs: 0.1, //The xz-plane cell size to use for fields. Default 0.2
             });
 
             if (success && navMesh) {
