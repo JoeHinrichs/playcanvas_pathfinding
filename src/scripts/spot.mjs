@@ -4,19 +4,39 @@ export class Spot extends pc.Script {
     static scriptName = 'spot';
 
     initialize() {
-        //this.entity.enabled = false;  
-        //opacity 
-        this.timer = 0;     
+        this.spotMat = this.entity.render.meshInstances[0].material;
+        this.hide();
     }
 
-    reset(){
+    hide(){
         this.timer = 0;
+        this.visible = false;
+        this.spotMat.opacity = 0;
+        this.spotMat.update();
+    }
+
+    show(){
+        this.timer = 0;
+        this.visible = true;
+        this.spotMat.opacity = 1;
+        this.spotMat.update();
     }
     
-    update(dt) {
-        this.timer += dt;
-        console.log(this.timer);
-        let scaleFactor = 0.25 + (Math.abs(Math.sin(this.timer)));
-        this.entity.setLocalScale(scaleFactor, 0.01, scaleFactor);
+    update(dt) {        
+        let speed = 4; let min = 0.25; let max = 0.5;
+
+        if(this.timer > 3) this.hide();
+
+        if(this.timer > 2 && this.spotMat.opacity > 0) {
+            let opacity = this.spotMat.opacity - 0.01;
+            this.spotMat.opacity = opacity;
+            this.spotMat.update();
+        }
+
+        if(this.visible){
+            this.timer += dt;
+            let scaleFactor = min + (Math.abs(Math.sin(this.timer * speed)) * max);
+            this.entity.setLocalScale(scaleFactor, 0.01, scaleFactor);
+        }        
     }
 }

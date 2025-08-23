@@ -107,7 +107,7 @@ export class Platform extends pc.Script {
                 this.crowd.agents[0].requestMoveTarget(result.point);
                 this.spot.setPosition(result.point);
                 this.spot.setLocalRotation(spotRot);
-                this.spot.script.spot.reset();
+                this.spot.script.spot.show();
             }
         }
     }
