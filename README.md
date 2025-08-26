@@ -1,5 +1,5 @@
 # PlayCanvas-Pathfinding
-This is a standalone example of pathfinding using the PlayCanvas Engine. To see it in action checkout https://jhinrichs.com/examples/pathfinding/
+This is a standalone example of pathfinding using the PlayCanvas Engine. To see it in action check out https://jhinrichs.com/examples/pathfinding/
 
 I've seen a few examples out there for the Recast portion, but not so much on the Detour functionality.  This is a simple implementation of both.
 
